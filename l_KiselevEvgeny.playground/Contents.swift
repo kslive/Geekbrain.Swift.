@@ -1,76 +1,152 @@
 import UIKit
+//1. Описать несколько структур – любой легковой автомобиль и любой грузовик.
+//2. Структуры должны содержать марку авто, год выпуска, объем багажника/кузова, запущен ли двигатель, открыты ли окна, заполненный объем багажника.
+//3. Описать перечисление с возможными действиями с автомобилем: запустить/заглушить двигатель, открыть/закрыть окна, погрузить/выгрузить из кузова/багажника груз определенного объема.
+//4. Добавить в структуры метод с одним аргументом типа перечисления, который будет менять свойства структуры в зависимости от действия.
+//5. Инициализировать несколько экземпляров структур. Применить к ним различные действия.
+//6. Вывести значения свойств экземпляров в консоль.
 
-//  1. Написать функцию, которая определяет, четное число или нет.
-func evenDefine(number: Int) {
-    if number % 2 == 0 {
-        print("\(number) четное число")
-    } else {
-        print("\(number) не четное число")
-    }
+enum engineStatus {
+    case start, stop
 }
 
-// 2. Написать функцию, которая определяет, делится ли число без остатка на 3.
-func divideByThree(number: Int) {
-    if number % 3 == 0 {
-        print("\(number) делится на 3")
-    } else {
-        print("\(number) не делится на 3")
-    }
+enum windowStatus {
+    case open, close
 }
 
-// 3. Создать возрастающий массив из 100 чисел.
-var number = 1
-var array: Array<Int> = []
-while number <= 100 {
-    array.append(number)
-    number += 1
+enum trunkStatus {
+    case full, empty
 }
 
-// 4. Удалить из этого массива все четные числа и все числа, которые не делятся на 3.
-for elements in array {
-    if elements % 2 == 0 || elements % 3 == 0 {
-        array.remove(at: (array.firstIndex(of: elements)!))
-    }
-}
-
-// 5. *Написать функцию, которая добавляет в массив новое число Фибоначчи, и добавить при помощи нее 100 элементов.
-func fibonacci(n: Int) -> Double {
-    if n <= 2 {
-        return 1
-    } else {
-        var x1: Double = 1
-        var x2: Double = 1
-        var x: Double
-        for _ in 3...n {
-            x = x1 + x2
-            x1 = x2
-            x2 = x
+struct PassengerCar {
+    let carModel: String
+    let yearOfIssueCar: Int
+    var colorCar: String
+    var trunkStatus: trunkStatus
+    
+    var volumeTrunk: Double! {
+        willSet {
+            if (trunkStatus == .empty) && (volumeTrunk > 0) && (volumeTrunk != 0) && (newValue < volumeTrunk) {
+                let freeVolumeTrunk = volumeTrunk - newValue
+                print("\(carModel) trunk volume free: \(freeVolumeTrunk)")
+            }
         }
-        return x2
     }
-}
-
-var arrayWithFibonacci: Array<Double> = []
-for m in 1...100 {
-    arrayWithFibonacci.append(fibonacci(n: m))
-}
-
-/* 6. * Заполнить массив из 100 элементов различными простыми числами. Натуральное число, большее единицы, называется простым, если оно делится только на себя и на единицу. Для нахождения всех простых чисел не больше заданного числа n, следуя методу Эратосфена, нужно выполнить следующие шаги:
-a. Выписать подряд все целые числа от двух до n (2, 3, 4, ..., n).
-b. Пусть переменная p изначально равна двум — первому простому числу.
-c. Зачеркнуть в списке числа от 2p до n, считая шагами по p (это будут числа, кратные p: 2p, 3p, 4p, ...).
-d. Найти первое не зачёркнутое число в списке, большее, чем p, и присвоить значению переменной p это число.
-e. Повторять шаги c и d, пока возможно.
-*/
-func addPrime() -> [Int] {
-    var result: Array<Int> = []
-    var number = 2
-    while result.count <= 100 {
-        if (number / number == 1) && (number / 1 == number) {
-            result.append(number)
+    
+    var engineStatus: engineStatus! {
+        willSet {
+            if newValue == .start {
+                print("\(carModel) engine is On")
+            } else {
+                print("\(carModel) engine is Off")
+            }
         }
-        number += 1
     }
-    return result
+    
+    var windowStatus: windowStatus! {
+        willSet {
+            if newValue == .open {
+                print("\(carModel) windows are Open")
+            } else {
+                print("\(carModel) windows are Close")
+            }
+        }
+    }
+    
+    
+    mutating func changeColorCar(colors: String) {
+        switch colors {
+        case "white":
+            colorCar = "white"
+        case "black":
+            colorCar = "black"
+        case "red":
+            colorCar = "red"
+        default:
+            print("Machine exists in 3 colors: white, black, red")
+        }
+        
+        func emptyTrunk() {
+            trunkStatus = .empty
+            print("\(carModel) trunk is Empty")
+        }
+    }
 }
-print(addPrime())
+
+struct Truck {
+    let carModel: String
+    let yearOfIssueCar: Int
+    var colorCar: String
+    var trunkStatus: trunkStatus
+    
+    var volumeTrunk: Double! {
+        willSet {
+            if (trunkStatus == .empty) && (volumeTrunk > 0) && (volumeTrunk != 0) && (newValue < volumeTrunk) {
+                let freeVolumeTrunk = volumeTrunk - newValue
+                print("\(carModel) trunk volume free: \(freeVolumeTrunk)")
+            }
+        }
+    }
+    
+    var engineStatus: engineStatus! {
+        willSet {
+            if newValue == .start {
+                print("\(carModel) engine is On")
+            } else {
+                print("\(carModel) engine is Off")
+            }
+        }
+    }
+    
+    var windowStatus: windowStatus! {
+        willSet {
+            if newValue == .open {
+                print("\(carModel) windows are Open")
+            } else {
+                print("\(carModel) windows are Close")
+            }
+        }
+    }
+    
+    
+    mutating func changeColorCar(colors: String) {
+        switch colors {
+        case "white":
+            colorCar = "white"
+        case "black":
+            colorCar = "black"
+        case "red":
+            colorCar = "red"
+        default:
+            print("Machine exists in 3 colors: white, black, red")
+        }
+        
+        func emptyTrunk() {
+            trunkStatus = .empty
+            print("\(carModel) trunk is Empty")
+        }
+    }
+}
+
+var carBMW = PassengerCar(carModel: "BMW x1", yearOfIssueCar: 2020, colorCar: "white", trunkStatus: .empty, volumeTrunk: 500, engineStatus: .stop, windowStatus: .close)
+var carLada = PassengerCar(carModel: "Lada 2107", yearOfIssueCar: 1997, colorCar: "black", trunkStatus: .empty, volumeTrunk: 400, engineStatus: .stop, windowStatus: .open)
+
+var truckGazel = Truck(carModel: "Gazel", yearOfIssueCar: 2000, colorCar: "red", trunkStatus: .empty, volumeTrunk: 1000, engineStatus: .start, windowStatus: .open)
+var truckGAZ = Truck(carModel: "GAZ", yearOfIssueCar: 2001, colorCar: "black", trunkStatus: .full, volumeTrunk: 1000, engineStatus: .start, windowStatus: .none)
+
+carBMW.engineStatus = .start
+carBMW.volumeTrunk = 200
+carBMW.windowStatus = .open
+
+carLada.engineStatus = .start
+carLada.volumeTrunk = 399
+carLada.windowStatus = .close
+
+print("""
+    Model: \(carBMW.carModel),
+    year: \(carBMW.yearOfIssueCar),
+    color: \(carBMW.colorCar),
+    free volume trunk: \(carBMW.volumeTrunk ?? 0)
+    engine is \(carBMW.engineStatus!)
+    """)
+
