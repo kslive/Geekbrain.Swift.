@@ -1,152 +1,191 @@
 import UIKit
-//1. Описать несколько структур – любой легковой автомобиль и любой грузовик.
-//2. Структуры должны содержать марку авто, год выпуска, объем багажника/кузова, запущен ли двигатель, открыты ли окна, заполненный объем багажника.
-//3. Описать перечисление с возможными действиями с автомобилем: запустить/заглушить двигатель, открыть/закрыть окна, погрузить/выгрузить из кузова/багажника груз определенного объема.
-//4. Добавить в структуры метод с одним аргументом типа перечисления, который будет менять свойства структуры в зависимости от действия.
-//5. Инициализировать несколько экземпляров структур. Применить к ним различные действия.
+
+//1. Описать класс Car c общими свойствами автомобилей и пустым методом действия по аналогии с прошлым заданием.
+enum status {
+    
+    enum engineStatus {
+        case start, stop
+    }
+    
+    enum windowStatus {
+        case open, close
+    }
+    
+    enum trunkStatus {
+        case full, empty
+    }
+}
+enum bodyMaterials {
+    
+    case steel, aluminum, plastic, composite
+}
+
+enum tires {
+    
+    case summerTires, winterTires
+}
+
+enum doorsCount {
+    
+    case one, two, three, four
+}
+
+enum windowCount {
+    
+    case two, four
+}
+
+class Car {
+    
+    private var bodyMaterials: bodyMaterials
+    private var tires: tires
+    private var doorsCount: doorsCount
+    private var windowCount: windowCount
+    
+    var engineStatus: status.engineStatus! {
+        willSet {
+            if newValue == .start {
+                print("- Engine is On -")
+            } else {
+                print("- Engine is Off -")
+            }
+        }
+    }
+    
+    var windowStatus: status.windowStatus! {
+        willSet {
+            if newValue == .open {
+                print("- Windows are Open -")
+            } else {
+                print("- Windows are Close -")
+            }
+        }
+    }
+    
+    func printMachineDescription() {
+        print("""
+            Materials body: \(bodyMaterials),
+            Tires: \(tires),
+            Count door: \(doorsCount),
+            Count windows: \(windowCount),
+            Engine status: \(engineStatus!),
+            Status window: \(windowStatus!)
+            """)
+    }
+    
+    init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: status.engineStatus, windowStatus: status.windowStatus) {
+        self.bodyMaterials = bodyMaterials
+        self.tires = tires
+        self.doorsCount = doorsCount
+        self.windowCount = windowCount
+        self.engineStatus = engineStatus
+        self.windowStatus = windowStatus
+    }
+}
+
+//2. Описать пару его наследников trunkCar и sportСar. Подумать, какими отличительными свойствами обладают эти автомобили. Описать в каждом наследнике специфичные для него свойства.
+//3. Взять из прошлого урока enum с действиями над автомобилем. Подумать, какие особенные действия имеет trunkCar, а какие – sportCar. Добавить эти действия в перечисление.
+//4. В каждом подклассе переопределить метод действия с автомобилем в соответствии с его классом.
+
+class TrunkCar: Car {
+    
+    var trunkStatus: status.trunkStatus
+    
+    var volumeTrunk: Double! {
+        willSet {
+            if (trunkStatus == status.trunkStatus.empty) && (volumeTrunk > 0) && (volumeTrunk != 0) && (newValue < volumeTrunk) {
+                let freeVolumeTrunk = volumeTrunk - newValue
+                print("- Trunk volume free: \(freeVolumeTrunk) -")
+            }
+        }
+    }
+    
+    func emptyTrunk() {
+        trunkStatus = .empty
+        print("- Trunk is Empty -")
+    }
+    
+    override func printMachineDescription() {
+        print("""
+            Materials body: \(bodyMaterials.self),
+            Tires: \(tires.self),
+            Count door: \(doorsCount.self),
+            Count windows: \(windowCount.self),
+            Engine status: \(engineStatus!),
+            Status window: \(windowStatus!),
+            Status trunk: \(trunkStatus),
+            Volume trunk: \(volumeTrunk!)
+            """)
+    }
+    
+    init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: status.engineStatus, windowStatus: status.windowStatus, trunkStatus: status.trunkStatus, volumeTrunk: Double) {
+        self.trunkStatus = trunkStatus
+        self.volumeTrunk = volumeTrunk
+        super.init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: engineStatus, windowStatus: windowStatus)
+    }
+}
+
+class SportCar: Car {
+    
+    var maxSpeed: Double
+    var weightSportCar: Double
+    
+    override func printMachineDescription() {
+        print("""
+            Materials body: \(bodyMaterials.self),
+            Tires: \(tires.self),
+            Count door: \(doorsCount.self),
+            Count windows: \(windowCount.self),
+            Engine status: \(engineStatus!),
+            Status window: \(windowStatus!)
+            Maximum speed: \(maxSpeed),
+            Weight car: \(weightSportCar)
+            """)
+    }
+    
+    init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: status.engineStatus, windowStatus: status.windowStatus, maxSpeed: Double, weightSportCar: Double) {
+        self.maxSpeed = maxSpeed
+        self.weightSportCar = weightSportCar
+        super.init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: engineStatus, windowStatus: windowStatus)
+    }
+}
+
+//5. Создать несколько объектов каждого класса. Применить к ним различные действия.
+
+var BMW = Car(bodyMaterials: .aluminum,
+              tires: .summerTires,
+              doorsCount: .four,
+              windowCount: .four,
+              engineStatus: .start,
+              windowStatus: .close)
+BMW.engineStatus = .stop
+BMW.windowStatus = .open
+
+var gazel = TrunkCar(bodyMaterials: .aluminum,
+                     tires: .summerTires,
+                     doorsCount: .two,
+                     windowCount: .two,
+                     engineStatus: .stop,
+                     windowStatus: .close,
+                     trunkStatus: .empty,
+                     volumeTrunk: 1000)
+gazel.trunkStatus = .full
+gazel.engineStatus = .start
+
+var bugattiVeyron = SportCar(bodyMaterials: .composite,
+                             tires: .summerTires,
+                             doorsCount: .two,
+                             windowCount: .two,
+                             engineStatus: .stop,
+                             windowStatus: .close,
+                             maxSpeed: 418,
+                             weightSportCar: 1800)
+bugattiVeyron.engineStatus = .start
+bugattiVeyron.windowStatus = .open
+
 //6. Вывести значения свойств экземпляров в консоль.
 
-enum engineStatus {
-    case start, stop
-}
-
-enum windowStatus {
-    case open, close
-}
-
-enum trunkStatus {
-    case full, empty
-}
-
-struct PassengerCar {
-    let carModel: String
-    let yearOfIssueCar: Int
-    var colorCar: String
-    var trunkStatus: trunkStatus
-    
-    var volumeTrunk: Double! {
-        willSet {
-            if (trunkStatus == .empty) && (volumeTrunk > 0) && (volumeTrunk != 0) && (newValue < volumeTrunk) {
-                let freeVolumeTrunk = volumeTrunk - newValue
-                print("\(carModel) trunk volume free: \(freeVolumeTrunk)")
-            }
-        }
-    }
-    
-    var engineStatus: engineStatus! {
-        willSet {
-            if newValue == .start {
-                print("\(carModel) engine is On")
-            } else {
-                print("\(carModel) engine is Off")
-            }
-        }
-    }
-    
-    var windowStatus: windowStatus! {
-        willSet {
-            if newValue == .open {
-                print("\(carModel) windows are Open")
-            } else {
-                print("\(carModel) windows are Close")
-            }
-        }
-    }
-    
-    
-    mutating func changeColorCar(colors: String) {
-        switch colors {
-        case "white":
-            colorCar = "white"
-        case "black":
-            colorCar = "black"
-        case "red":
-            colorCar = "red"
-        default:
-            print("Machine exists in 3 colors: white, black, red")
-        }
-        
-        func emptyTrunk() {
-            trunkStatus = .empty
-            print("\(carModel) trunk is Empty")
-        }
-    }
-}
-
-struct Truck {
-    let carModel: String
-    let yearOfIssueCar: Int
-    var colorCar: String
-    var trunkStatus: trunkStatus
-    
-    var volumeTrunk: Double! {
-        willSet {
-            if (trunkStatus == .empty) && (volumeTrunk > 0) && (volumeTrunk != 0) && (newValue < volumeTrunk) {
-                let freeVolumeTrunk = volumeTrunk - newValue
-                print("\(carModel) trunk volume free: \(freeVolumeTrunk)")
-            }
-        }
-    }
-    
-    var engineStatus: engineStatus! {
-        willSet {
-            if newValue == .start {
-                print("\(carModel) engine is On")
-            } else {
-                print("\(carModel) engine is Off")
-            }
-        }
-    }
-    
-    var windowStatus: windowStatus! {
-        willSet {
-            if newValue == .open {
-                print("\(carModel) windows are Open")
-            } else {
-                print("\(carModel) windows are Close")
-            }
-        }
-    }
-    
-    
-    mutating func changeColorCar(colors: String) {
-        switch colors {
-        case "white":
-            colorCar = "white"
-        case "black":
-            colorCar = "black"
-        case "red":
-            colorCar = "red"
-        default:
-            print("Machine exists in 3 colors: white, black, red")
-        }
-        
-        func emptyTrunk() {
-            trunkStatus = .empty
-            print("\(carModel) trunk is Empty")
-        }
-    }
-}
-
-var carBMW = PassengerCar(carModel: "BMW x1", yearOfIssueCar: 2020, colorCar: "white", trunkStatus: .empty, volumeTrunk: 500, engineStatus: .stop, windowStatus: .close)
-var carLada = PassengerCar(carModel: "Lada 2107", yearOfIssueCar: 1997, colorCar: "black", trunkStatus: .empty, volumeTrunk: 400, engineStatus: .stop, windowStatus: .open)
-
-var truckGazel = Truck(carModel: "Gazel", yearOfIssueCar: 2000, colorCar: "red", trunkStatus: .empty, volumeTrunk: 1000, engineStatus: .start, windowStatus: .open)
-var truckGAZ = Truck(carModel: "GAZ", yearOfIssueCar: 2001, colorCar: "black", trunkStatus: .full, volumeTrunk: 1000, engineStatus: .start, windowStatus: .none)
-
-carBMW.engineStatus = .start
-carBMW.volumeTrunk = 200
-carBMW.windowStatus = .open
-
-carLada.engineStatus = .start
-carLada.volumeTrunk = 399
-carLada.windowStatus = .close
-
-print("""
-    Model: \(carBMW.carModel),
-    year: \(carBMW.yearOfIssueCar),
-    color: \(carBMW.colorCar),
-    free volume trunk: \(carBMW.volumeTrunk ?? 0)
-    engine is \(carBMW.engineStatus!)
-    """)
+BMW.printMachineDescription()
+gazel.printMachineDescription()
+bugattiVeyron.printMachineDescription()
 
