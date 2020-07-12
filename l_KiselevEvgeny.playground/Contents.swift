@@ -1,191 +1,122 @@
 import UIKit
 
-//1. Описать класс Car c общими свойствами автомобилей и пустым методом действия по аналогии с прошлым заданием.
-enum status {
-    
-    enum engineStatus {
-        case start, stop
-    }
-    
-    enum windowStatus {
-        case open, close
-    }
-    
-    enum trunkStatus {
-        case full, empty
-    }
-}
-enum bodyMaterials {
-    
-    case steel, aluminum, plastic, composite
+enum EngineStatus: String {
+    case start = "engine start"
+    case stop = "engine stop"
 }
 
-enum tires {
-    
-    case summerTires, winterTires
+enum WindowsStatus: String {
+    case open = "windows open"
+    case close = "windows close"
 }
 
-enum doorsCount {
+//1. Создать протокол «Car» и описать свойства, общие для автомобилей, а также метод действия.
+protocol Car {
+    var model: String { get }
+    var engineStatus: EngineStatus { get set }
+    var windowsStatus: WindowsStatus { get set }
     
-    case one, two, three, four
+    mutating func getEngineStatus()
+    mutating func getWindowsStatus()
 }
 
-enum windowCount {
-    
-    case two, four
-}
-
-class Car {
-    
-    private var bodyMaterials: bodyMaterials
-    private var tires: tires
-    private var doorsCount: doorsCount
-    private var windowCount: windowCount
-    
-    var engineStatus: status.engineStatus! {
-        willSet {
-            if newValue == .start {
-                print("- Engine is On -")
-            } else {
-                print("- Engine is Off -")
-            }
+//2. Создать расширения для протокола «Car» и реализовать в них методы конкретных действий с автомобилем: открыть/закрыть окно, запустить/заглушить двигатель и т.д. (по одному методу на действие, реализовывать следует только те действия, реализация которых общая для всех автомобилей).
+extension Car {
+    mutating func getEngineStatus() {
+        switch engineStatus {
+        case .start:
+            return self.engineStatus = .start
+        case .stop:
+            return self.engineStatus = .stop
         }
     }
     
-    var windowStatus: status.windowStatus! {
-        willSet {
-            if newValue == .open {
-                print("- Windows are Open -")
-            } else {
-                print("- Windows are Close -")
-            }
+    mutating func getWindowsStatus() {
+        switch windowsStatus {
+        case .open:
+            return self.windowsStatus = .open
+        case .close:
+            return self.windowsStatus = .close
         }
     }
+}
+
+//3. Создать два класса, имплементирующих протокол «Car» - trunkCar и sportСar. Описать в них свойства, отличающиеся для спортивного автомобиля и цистерны.
+class SportCar: Car {
+    var model: String
+    var engineStatus: EngineStatus
+    var windowsStatus: WindowsStatus
+    private let maxSpeed: Double
     
-    func printMachineDescription() {
-        print("""
-            Materials body: \(bodyMaterials),
-            Tires: \(tires),
-            Count door: \(doorsCount),
-            Count windows: \(windowCount),
-            Engine status: \(engineStatus!),
-            Status window: \(windowStatus!)
-            """)
-    }
-    
-    init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: status.engineStatus, windowStatus: status.windowStatus) {
-        self.bodyMaterials = bodyMaterials
-        self.tires = tires
-        self.doorsCount = doorsCount
-        self.windowCount = windowCount
+    init(model: String, engineStatus: EngineStatus, windowsStatus: WindowsStatus, maxSpeed: Double) {
+        self.model = model
         self.engineStatus = engineStatus
-        self.windowStatus = windowStatus
+        self.windowsStatus = windowsStatus
+        self.maxSpeed = maxSpeed
     }
 }
-
-//2. Описать пару его наследников trunkCar и sportСar. Подумать, какими отличительными свойствами обладают эти автомобили. Описать в каждом наследнике специфичные для него свойства.
-//3. Взять из прошлого урока enum с действиями над автомобилем. Подумать, какие особенные действия имеет trunkCar, а какие – sportCar. Добавить эти действия в перечисление.
-//4. В каждом подклассе переопределить метод действия с автомобилем в соответствии с его классом.
 
 class TrunkCar: Car {
+    var model: String
+    var engineStatus: EngineStatus
+    var windowsStatus: WindowsStatus
+    var volumeTrunkStatus: VolumeTrunkStatus
     
-    var trunkStatus: status.trunkStatus
+    enum VolumeTrunkStatus: String {
+        case full = "trunk is full"
+        case empty = "trunk is empty"
+    }
     
-    var volumeTrunk: Double! {
-        willSet {
-            if (trunkStatus == status.trunkStatus.empty) && (volumeTrunk > 0) && (volumeTrunk != 0) && (newValue < volumeTrunk) {
-                let freeVolumeTrunk = volumeTrunk - newValue
-                print("- Trunk volume free: \(freeVolumeTrunk) -")
-            }
+    func getStatusVolumeTrunk() {
+        switch volumeTrunkStatus {
+        case .empty:
+            return volumeTrunkStatus = .empty
+        case .full:
+            return volumeTrunkStatus = .full
         }
     }
     
-    func emptyTrunk() {
-        trunkStatus = .empty
-        print("- Trunk is Empty -")
-    }
-    
-    override func printMachineDescription() {
-        print("""
-            Materials body: \(bodyMaterials.self),
-            Tires: \(tires.self),
-            Count door: \(doorsCount.self),
-            Count windows: \(windowCount.self),
-            Engine status: \(engineStatus!),
-            Status window: \(windowStatus!),
-            Status trunk: \(trunkStatus),
-            Volume trunk: \(volumeTrunk!)
-            """)
-    }
-    
-    init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: status.engineStatus, windowStatus: status.windowStatus, trunkStatus: status.trunkStatus, volumeTrunk: Double) {
-        self.trunkStatus = trunkStatus
-        self.volumeTrunk = volumeTrunk
-        super.init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: engineStatus, windowStatus: windowStatus)
+    init(model: String, engineStatus: EngineStatus, windowsStatus: WindowsStatus, volumeTrunkStatus: VolumeTrunkStatus) {
+        self.model = model
+        self.engineStatus = engineStatus
+        self.windowsStatus = windowsStatus
+        self.volumeTrunkStatus = volumeTrunkStatus
     }
 }
 
-class SportCar: Car {
-    
-    var maxSpeed: Double
-    var weightSportCar: Double
-    
-    override func printMachineDescription() {
-        print("""
-            Materials body: \(bodyMaterials.self),
-            Tires: \(tires.self),
-            Count door: \(doorsCount.self),
-            Count windows: \(windowCount.self),
-            Engine status: \(engineStatus!),
-            Status window: \(windowStatus!)
-            Maximum speed: \(maxSpeed),
-            Weight car: \(weightSportCar)
-            """)
+//4. Для каждого класса написать расширение, имплементирующее протокол CustomStringConvertible.
+extension SportCar: CustomStringConvertible {
+    var description: String {
+        return """
+        Model: \(model),
+        Engine Status: \(engineStatus.rawValue),
+        Windows Status: \(windowsStatus.rawValue),
+        Max Speed: \(maxSpeed).
+        """
     }
-    
-    init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: status.engineStatus, windowStatus: status.windowStatus, maxSpeed: Double, weightSportCar: Double) {
-        self.maxSpeed = maxSpeed
-        self.weightSportCar = weightSportCar
-        super.init(bodyMaterials: bodyMaterials, tires: tires, doorsCount: doorsCount, windowCount: windowCount, engineStatus: engineStatus, windowStatus: windowStatus)
+}
+
+extension TrunkCar: CustomStringConvertible {
+    var description: String {
+        return """
+        Model: \(model),
+        Engine Status: \(engineStatus.rawValue),
+        Windows Status: \(windowsStatus.rawValue),
+        Volume Trunk Status: \(volumeTrunkStatus.rawValue).
+        """
     }
 }
 
 //5. Создать несколько объектов каждого класса. Применить к ним различные действия.
+var ladaSedan = SportCar(model: "Lada Sedan", engineStatus: .start, windowsStatus: .close, maxSpeed: 666)
+ladaSedan.windowsStatus = .open
+ladaSedan.engineStatus = .stop
 
-var BMW = Car(bodyMaterials: .aluminum,
-              tires: .summerTires,
-              doorsCount: .four,
-              windowCount: .four,
-              engineStatus: .start,
-              windowStatus: .close)
-BMW.engineStatus = .stop
-BMW.windowStatus = .open
-
-var gazel = TrunkCar(bodyMaterials: .aluminum,
-                     tires: .summerTires,
-                     doorsCount: .two,
-                     windowCount: .two,
-                     engineStatus: .stop,
-                     windowStatus: .close,
-                     trunkStatus: .empty,
-                     volumeTrunk: 1000)
-gazel.trunkStatus = .full
+var gazel = TrunkCar(model: "Gazel GLE", engineStatus: .stop, windowsStatus: .close, volumeTrunkStatus: .full)
 gazel.engineStatus = .start
+gazel.windowsStatus = .open
+gazel.volumeTrunkStatus = .empty
 
-var bugattiVeyron = SportCar(bodyMaterials: .composite,
-                             tires: .summerTires,
-                             doorsCount: .two,
-                             windowCount: .two,
-                             engineStatus: .stop,
-                             windowStatus: .close,
-                             maxSpeed: 418,
-                             weightSportCar: 1800)
-bugattiVeyron.engineStatus = .start
-bugattiVeyron.windowStatus = .open
-
-//6. Вывести значения свойств экземпляров в консоль.
-
-BMW.printMachineDescription()
-gazel.printMachineDescription()
-bugattiVeyron.printMachineDescription()
-
+//6. Вывести сами объекты в консоль.
+print(ladaSedan)
+print(gazel)
