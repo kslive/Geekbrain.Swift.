@@ -1,122 +1,85 @@
 import UIKit
 
-enum EngineStatus: String {
-    case start = "engine start"
-    case stop = "engine stop"
-}
+//1. Реализовать свой тип коллекции «очередь» (queue) c использованием дженериков.
+//2. Добавить ему несколько методов высшего порядка, полезных для этой коллекции (пример: filter для массивов)
+//3. * Добавить свой subscript, который будет возвращать nil в случае обращения к несуществующему индексу.
 
-enum WindowsStatus: String {
-    case open = "windows open"
-    case close = "windows close"
-}
-
-//1. Создать протокол «Car» и описать свойства, общие для автомобилей, а также метод действия.
-protocol Car {
-    var model: String { get }
-    var engineStatus: EngineStatus { get set }
-    var windowsStatus: WindowsStatus { get set }
+struct Queue<QueueT> {
     
-    mutating func getEngineStatus()
-    mutating func getWindowsStatus()
+// Свойство, которое хранит в себе все данные:
+    var list = [QueueT]()
+    
+// Функция, которая ставит в очередь:
+    mutating func enqueueInCollection(_ element: [QueueT]) {
+        list.append(contentsOf: element)
+    }
+    
+// Функция, которая удаляет из очереди:
+    mutating func dequeueFromCollection() -> QueueT? {
+        let resultDequeue = !list.isEmpty ? list.removeFirst() : nil
+        return resultDequeue
+    }
+    
+// Проверяет на пустоту массив, если нет, то покажет первый элемент массива:
+    func showFirstElement() -> QueueT? {
+        let resultPeek = !list.isEmpty ? list[0] : nil
+        return resultPeek
+    }
+    
+// Вычисляемое свойство, которое сообщает о статусе списка:
+    var statusIsEmpty: String {
+        let resultIsEmpty = list.isEmpty ? "Queue is free" : "Queue is full: \(list)"
+        print(resultIsEmpty)
+        return resultIsEmpty
+    }
 }
 
-//2. Создать расширения для протокола «Car» и реализовать в них методы конкретных действий с автомобилем: открыть/закрыть окно, запустить/заглушить двигатель и т.д. (по одному методу на действие, реализовывать следует только те действия, реализация которых общая для всех автомобилей).
-extension Car {
-    mutating func getEngineStatus() {
-        switch engineStatus {
-        case .start:
-            return self.engineStatus = .start
-        case .stop:
-            return self.engineStatus = .stop
+
+
+extension Queue {
+    
+// Фильтр массива:
+    func filter(predicate: (QueueT) -> Bool) -> [QueueT] {
+        var result = [QueueT]()
+        for element in list {
+            if predicate(element) {
+                result.append(element)
+            }
         }
+        return result
     }
     
-    mutating func getWindowsStatus() {
-        switch windowsStatus {
-        case .open:
-            return self.windowsStatus = .open
-        case .close:
-            return self.windowsStatus = .close
+// Вывод nil, если не существующий индекс:
+    subscript(elements: Int) -> String? {
+            var answer = ""
+            if elements > list.count - 1 {
+                return nil
+            } else {
+                answer = "\(list[elements])"
+            }
+            return answer
         }
-    }
-}
-
-//3. Создать два класса, имплементирующих протокол «Car» - trunkCar и sportСar. Описать в них свойства, отличающиеся для спортивного автомобиля и цистерны.
-class SportCar: Car {
-    var model: String
-    var engineStatus: EngineStatus
-    var windowsStatus: WindowsStatus
-    private let maxSpeed: Double
     
-    init(model: String, engineStatus: EngineStatus, windowsStatus: WindowsStatus, maxSpeed: Double) {
-        self.model = model
-        self.engineStatus = engineStatus
-        self.windowsStatus = windowsStatus
-        self.maxSpeed = maxSpeed
-    }
 }
 
-class TrunkCar: Car {
-    var model: String
-    var engineStatus: EngineStatus
-    var windowsStatus: WindowsStatus
-    var volumeTrunkStatus: VolumeTrunkStatus
-    
-    enum VolumeTrunkStatus: String {
-        case full = "trunk is full"
-        case empty = "trunk is empty"
-    }
-    
-    func getStatusVolumeTrunk() {
-        switch volumeTrunkStatus {
-        case .empty:
-            return volumeTrunkStatus = .empty
-        case .full:
-            return volumeTrunkStatus = .full
-        }
-    }
-    
-    init(model: String, engineStatus: EngineStatus, windowsStatus: WindowsStatus, volumeTrunkStatus: VolumeTrunkStatus) {
-        self.model = model
-        self.engineStatus = engineStatus
-        self.windowsStatus = windowsStatus
-        self.volumeTrunkStatus = volumeTrunkStatus
-    }
-}
+var queueCollection = Queue<Int>()
+queueCollection.enqueueInCollection([1])
+queueCollection.enqueueInCollection([2])
+queueCollection.enqueueInCollection([3])
+queueCollection.enqueueInCollection([4])
+queueCollection.enqueueInCollection([5])
 
-//4. Для каждого класса написать расширение, имплементирующее протокол CustomStringConvertible.
-extension SportCar: CustomStringConvertible {
-    var description: String {
-        return """
-        Model: \(model),
-        Engine Status: \(engineStatus.rawValue),
-        Windows Status: \(windowsStatus.rawValue),
-        Max Speed: \(maxSpeed).
-        """
-    }
-}
+// Удаление с очереди:
+queueCollection.dequeueFromCollection()
 
-extension TrunkCar: CustomStringConvertible {
-    var description: String {
-        return """
-        Model: \(model),
-        Engine Status: \(engineStatus.rawValue),
-        Windows Status: \(windowsStatus.rawValue),
-        Volume Trunk Status: \(volumeTrunkStatus.rawValue).
-        """
-    }
-}
+// Первый элемент массива:
+queueCollection.showFirstElement()
 
-//5. Создать несколько объектов каждого класса. Применить к ним различные действия.
-var ladaSedan = SportCar(model: "Lada Sedan", engineStatus: .start, windowsStatus: .close, maxSpeed: 666)
-ladaSedan.windowsStatus = .open
-ladaSedan.engineStatus = .stop
+// Статус:
+queueCollection.statusIsEmpty
 
-var gazel = TrunkCar(model: "Gazel GLE", engineStatus: .stop, windowsStatus: .close, volumeTrunkStatus: .full)
-gazel.engineStatus = .start
-gazel.windowsStatus = .open
-gazel.volumeTrunkStatus = .empty
+let filterQueueCollection = queueCollection.filter{$0 % 2 == 0}
+let sorted = queueCollection.list.sorted(by: >)
 
-//6. Вывести сами объекты в консоль.
-print(ladaSedan)
-print(gazel)
+// Вывод nil:
+queueCollection[4]
