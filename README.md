@@ -1,4 +1,4 @@
-# Geekbrain.Swift.
+# Geekbrains. Swift. Homework. 
 
 2lesson. 
 1. Написать функцию, которая определяет, четное число или нет.
