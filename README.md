@@ -5,7 +5,8 @@
 [4lesson](#4lesson)<br />
 [5lesson](#5lesson)<br />
 [6lesson](#6lesson)<br />
-[7lesson](#7lesson)
+[7lesson](#7lesson)<br />
+[8lesson](#8lesson)
 
 ### 2lesson. 
 1. Написать функцию, которая определяет, четное число или нет.
