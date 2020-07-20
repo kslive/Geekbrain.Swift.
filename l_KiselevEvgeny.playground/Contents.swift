@@ -1,85 +1,189 @@
 import UIKit
+//1. Придумать класс, методы которого могут завершаться неудачей и возвращать либо значение, либо ошибку Error?. Реализовать их вызов и обработать результат метода при помощи конструкции if let, или guard let.
 
-//1. Реализовать свой тип коллекции «очередь» (queue) c использованием дженериков.
-//2. Добавить ему несколько методов высшего порядка, полезных для этой коллекции (пример: filter для массивов)
-//3. * Добавить свой subscript, который будет возвращать nil в случае обращения к несуществующему индексу.
+struct Users {
+    let nameUsers: NameUsers
+    let password: Int
+}
 
-struct Queue<QueueT> {
+struct NameUsers {
+    let name: String
+}
+
+enum AuthorizationError: Error {
+    case wrongPassword
+    case wrongName
+}
+
+class Authorization {
+    var dataUsers = [
+        "Петр I" : Users(nameUsers: NameUsers(name: "Петр I"), password: 1672),
+        "Екатерина II" : Users(nameUsers: NameUsers(name: "Екатерина II"), password: 1729),
+        "Николай II" : Users(nameUsers: NameUsers(name: "Николай II"), password: 1868)
+    ]
     
-// Свойство, которое хранит в себе все данные:
-    var list = [QueueT]()
+    func login(name: String, password: Int) -> (NameUsers?, AuthorizationError?) {
+        
+        // Проверка на наличия такого пользователя:
+        guard let users = dataUsers[name] else {
+            return (nil, .wrongName)
+        }
+        
+        // Проверка на соответствие пароля:
+        guard users.password == password else {
+            return (nil, .wrongPassword)
+        }
     
-// Функция, которая ставит в очередь:
-    mutating func enqueueInCollection(_ element: [QueueT]) {
-        list.append(contentsOf: element)
-    }
-    
-// Функция, которая удаляет из очереди:
-    mutating func dequeueFromCollection() -> QueueT? {
-        let resultDequeue = !list.isEmpty ? list.removeFirst() : nil
-        return resultDequeue
-    }
-    
-// Проверяет на пустоту массив, если нет, то покажет первый элемент массива:
-    func showFirstElement() -> QueueT? {
-        let resultPeek = !list.isEmpty ? list[0] : nil
-        return resultPeek
-    }
-    
-// Вычисляемое свойство, которое сообщает о статусе списка:
-    var statusIsEmpty: String {
-        let resultIsEmpty = list.isEmpty ? "Queue is free" : "Queue is full: \(list)"
-        print(resultIsEmpty)
-        return resultIsEmpty
+        return (users.nameUsers,nil)
     }
 }
 
+let user = Authorization()
+let PeterNumberOne = user.login(name: "Петр I", password: 1672)
 
-
-extension Queue {
-    
-// Фильтр массива:
-    func filter(predicate: (QueueT) -> Bool) -> [QueueT] {
-        var result = [QueueT]()
-        for element in list {
-            if predicate(element) {
-                result.append(element)
-            }
-        }
-        return result
-    }
-    
-// Вывод nil, если не существующий индекс:
-    subscript(elements: Int) -> String? {
-            var answer = ""
-            if elements > list.count - 1 {
-                return nil
-            } else {
-                answer = "\(list[elements])"
-            }
-            return answer
-        }
-    
+if let client = PeterNumberOne.0 {
+    print("Welcome, \(client.name)!")
+} else if let error = PeterNumberOne.1{
+    print("Ошибка: \(error.self)")
 }
 
-var queueCollection = Queue<Int>()
-queueCollection.enqueueInCollection([1])
-queueCollection.enqueueInCollection([2])
-queueCollection.enqueueInCollection([3])
-queueCollection.enqueueInCollection([4])
-queueCollection.enqueueInCollection([5])
 
-// Удаление с очереди:
-queueCollection.dequeueFromCollection()
+let NicholasNumberTwo = user.login(name: "Николай I", password: 1868)
 
-// Первый элемент массива:
-queueCollection.showFirstElement()
+if let client = NicholasNumberTwo.0 {
+    print("Welcome, \(client.name)!")
+} else if let error = NicholasNumberTwo.1{
+    print("Ошибка: \(error.self)")
+}
 
-// Статус:
-queueCollection.statusIsEmpty
+//2. Придумать класс, методы которого могут выбрасывать ошибки. Реализуйте несколько throws-функций. Вызовите их и обработайте результат вызова при помощи конструкции try/catch.
 
-let filterQueueCollection = queueCollection.filter{$0 % 2 == 0}
-let sorted = queueCollection.list.sorted(by: >)
+// Причины, по которым нельзя снять наличку:
+enum ATMError: Error {
+    case emptyATM
+    case emptyBalanceOnTheCard
+    case ATMLostConnectionWithTheServer
+}
 
-// Вывод nil:
-queueCollection[4]
+// Сумма для снятия:
+struct Balance {
+    var moneyToWithdraw: Double
+}
+
+// Банковский автомат:
+class ATM {
+    
+// Денег на карте:
+    private var moneyLeft: Double
+// Денег в банкомате:
+    private var moneyInATM: Double
+// Связь банкомата с сервером:
+    private var connectionWithTheServer: Bool
+    
+// Снятие наличных:
+    func getMoney(moneyToWithdraw: Balance) throws {
+        
+        // Связь с сервером:
+        guard connectionWithTheServer == true else {
+            throw ATMError.ATMLostConnectionWithTheServer
+        }
+        // Баланс на карте:
+        guard moneyLeft >= moneyToWithdraw.moneyToWithdraw else {
+            throw ATMError.emptyBalanceOnTheCard
+        }
+        // Доступно средств в банкомате:
+        guard moneyInATM >= moneyToWithdraw.moneyToWithdraw else {
+            throw ATMError.emptyATM
+        }
+        
+        // Списываем деньги с карты и баланса банкомата:
+        moneyLeft = self.moneyLeft - moneyToWithdraw.moneyToWithdraw
+        moneyInATM = self.moneyInATM - moneyToWithdraw.moneyToWithdraw
+    }
+    
+// Узнать баланс/баланс банкомата/связь с сервером:
+    func getDescription(selectOperationNumber: Int) -> () {
+        switch selectOperationNumber {
+        case 1:
+            return print("Осталось денег на карте: \(moneyLeft)")
+        case 2:
+            return print("Осталось денег в банкомате: \(moneyInATM)")
+        case 3:
+            return print("Связь с сервером: \(connectionWithTheServer)")
+        default:
+            return print("""
+Введена не верная команда!
+1 - узнать баланс на карте,
+2 - узнать баланс банкомата,
+3 - узнать соединение с сервером.
+""")
+        }
+    }
+    
+// Изменение начальных параметров:
+    init(moneyLeft: Double, moneyInATM: Double, connectionWithTheServer: Bool) {
+        self.moneyLeft = moneyLeft
+        self.moneyInATM = moneyInATM
+        self.connectionWithTheServer = connectionWithTheServer
+    }
+}
+
+// Снятие произошло:
+let operationFirst = ATM(moneyLeft: 100_000, moneyInATM: 50_000, connectionWithTheServer: true)
+do {
+    try operationFirst.getMoney(moneyToWithdraw: .init(moneyToWithdraw: 50_000))
+} catch ATMError.emptyATM {
+    print("В банкомате недостаточно средств!")
+} catch ATMError.ATMLostConnectionWithTheServer {
+    print("Потеряна связь с сервером!")
+} catch ATMError.emptyBalanceOnTheCard {
+    print("Денег на карте не достаточно для снятия!")
+}
+operationFirst.getDescription(selectOperationNumber: 1)
+operationFirst.getDescription(selectOperationNumber: 2)
+operationFirst.getDescription(selectOperationNumber: 3)
+
+// Потеряна связь с сервером:
+let operationTwo = ATM(moneyLeft: 1_000, moneyInATM: 2_000, connectionWithTheServer: false)
+do {
+    try operationTwo.getMoney(moneyToWithdraw: .init(moneyToWithdraw: 1_000))
+} catch ATMError.emptyATM {
+    print("В банкомате недостаточно средств!")
+} catch ATMError.ATMLostConnectionWithTheServer {
+    print("Потеряна связь с сервером!")
+} catch ATMError.emptyBalanceOnTheCard {
+    print("Денег на карте не достаточно для снятия!")
+}
+operationTwo.getDescription(selectOperationNumber: 1)
+operationTwo.getDescription(selectOperationNumber: 2)
+operationTwo.getDescription(selectOperationNumber: 3)
+
+// Денег на карте не достаточно для снятия:
+let operationThree = ATM(moneyLeft: 1_000, moneyInATM: 2_000, connectionWithTheServer: true)
+do {
+    try operationThree.getMoney(moneyToWithdraw: .init(moneyToWithdraw: 1_500))
+} catch ATMError.emptyATM {
+    print("В банкомате недостаточно средств!")
+} catch ATMError.ATMLostConnectionWithTheServer {
+    print("Потеряна связь с сервером!")
+} catch ATMError.emptyBalanceOnTheCard {
+    print("Денег на карте не достаточно для снятия!")
+}
+operationThree.getDescription(selectOperationNumber: 1)
+operationThree.getDescription(selectOperationNumber: 2)
+operationThree.getDescription(selectOperationNumber: 3)
+
+// В банкомате недостаточно средств:
+let operationFour = ATM(moneyLeft: 1_000, moneyInATM: 500, connectionWithTheServer: true)
+do {
+    try operationFour.getMoney(moneyToWithdraw: .init(moneyToWithdraw: 1_000))
+} catch ATMError.emptyATM {
+    print("В банкомате недостаточно средств!")
+} catch ATMError.ATMLostConnectionWithTheServer {
+    print("Потеряна связь с сервером!")
+} catch ATMError.emptyBalanceOnTheCard {
+    print("Денег на карте не достаточно для снятия!")
+}
+operationFour.getDescription(selectOperationNumber: 1)
+operationFour.getDescription(selectOperationNumber: 2)
+operationFour.getDescription(selectOperationNumber: 3)
