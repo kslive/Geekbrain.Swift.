@@ -1,5 +1,12 @@
 # Geekbrains. Swift. Homework. 
 
+[2lesson](#2lesson)<br />
+[3lesson](#3lesson)<br />
+[4lesson](#4lesson)<br />
+[5lesson](#5lesson)<br />
+[6lesson](#6lesson)<br />
+[7lesson](#7lesson)
+
 ### 2lesson. 
 1. Написать функцию, которая определяет, четное число или нет.
 2. Написать функцию, которая определяет, делится ли число без остатка на 3.
